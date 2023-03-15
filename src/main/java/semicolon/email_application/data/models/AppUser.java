@@ -20,5 +20,6 @@ public class AppUser {
     private String email;
     private Gender gender;
     private int age;
+    private String phoneNumber;
     private String createdAt;
 }

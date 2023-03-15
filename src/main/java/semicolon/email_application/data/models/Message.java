@@ -3,9 +3,12 @@ package semicolon.email_application.data.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+
 @Getter
 @Setter
 @Builder
@@ -16,11 +19,5 @@ public class Message {
     private String subject;
     private String body;
 
-//    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-//    private Attachment attachment;
     private String timeStamp;
-
-// @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-//    private AppUser userDetails;
-
 }
