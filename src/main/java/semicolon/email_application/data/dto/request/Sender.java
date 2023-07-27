@@ -1,6 +1,7 @@
 package semicolon.email_application.data.dto.request;
 
 import lombok.*;
+import semicolon.email_application.data.models.AppUser;
 
 @AllArgsConstructor
 @NoArgsConstructor

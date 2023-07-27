@@ -44,7 +44,7 @@ class AppUserServiceImpTest {
         request.setPassword("testPassword");
 
         List<Recipient> to = List.of(
-                new Recipient("Fanu", "fanusamuel@gmail.com")
+                new Recipient("Samuel", "fanusamuel@gmail.com")
         );
         Sender sender = new Sender("SamuelMail", "noreply@app.net");
         mailRequest = new SendMailRequest(sender, to, "Test sending email", "Let build the world together");
@@ -71,7 +71,7 @@ class AppUserServiceImpTest {
         var response = appUserService.register(request);
         AppUser foundAppUser = appUserService.getAppUserById(response.getId());
         assertThat(foundAppUser).isNotNull();
-        assertThat(foundAppUser.getFirstName()).isEqualTo(request.getFirstName());
+        assertThat(foundAppUser.getName()).isEqualTo(request.getEmail());
     }
 
     @Test

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import semicolon.email_application.config.MailConfig;
@@ -16,6 +17,7 @@ import semicolon.email_application.data.dto.request.SendMailRequest;
 import semicolon.email_application.data.dto.request.Sender;
 import semicolon.email_application.data.dto.response.RegisterResponse;
 import semicolon.email_application.data.models.AppUser;
+import semicolon.email_application.data.models.Role;
 import semicolon.email_application.data.repositories.AppUserRepository;
 import semicolon.email_application.exception.EmailManagementException;
 import semicolon.email_application.service.AppUserService;
@@ -31,6 +33,7 @@ import java.util.Optional;
 public class AppUserServiceImp implements AppUserService {
 
     private final AppUserRepository appUserRepository;
+    private final PasswordEncoder passwordEncoder;
     private final MailConfig mailConfig;
 
 
@@ -38,6 +41,8 @@ public class AppUserServiceImp implements AppUserService {
     public RegisterResponse register(RegisterAppUserRequest registerRequest){
         ModelMapper mapper = new ModelMapper();
         AppUser appUser = mapper.map(registerRequest, AppUser.class);
+        appUser.getRoles().add(Role.SENDER);
+        appUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         appUser.setCreatedAt(LocalDateTime.now().toString());
         AppUser savedAppUser = appUserRepository.save(appUser);
         RegisterResponse registerResponse = getRegisterResponse(savedAppUser);
@@ -103,11 +108,14 @@ public class AppUserServiceImp implements AppUserService {
 
     @Override
     public String sendEmail(SendMailRequest mailRequest) {
+        ModelMapper mapper = new ModelMapper();
+        AppUser appUser = mapper.map(mailRequest, AppUser.class);
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("api-key", mailConfig.getApiKey());
 //        log.info("api-key{}", mailConfig.getApiKey());
+
         HttpEntity<SendMailRequest> requestEntity = new HttpEntity<>(mailRequest, headers);
 
         ResponseEntity<String> response = restTemplate.postForEntity(mailConfig.getMailUrl(), requestEntity, String.class);
