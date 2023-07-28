@@ -6,18 +6,21 @@ import lombok.*;
 import java.util.List;
 
 @Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-
-@Getter
-@Setter
 @Builder
 public class Message {
    @Id
    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+   @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private AppUser sender;
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private AppUser recipient;
     private String subject;
     private String body;
-
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Attachment> attachments;
     private String timeStamp;
 }

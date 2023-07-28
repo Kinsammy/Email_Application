@@ -11,8 +11,9 @@ import semicolon.email_application.data.models.AppUser;
 import java.util.List;
 
 
-public interface AppUserService {
+public interface IAppUserService {
     RegisterResponse register(RegisterAppUserRequest registerRequest);
+
 
     List<AppUser> getAllAppUsers();
     AppUser getAppUserById(Long appUserId);
@@ -21,6 +22,6 @@ public interface AppUserService {
 //    Sender addNewSender(Sender sender);
     void deleteAppUser(Long appUserId);
 
-    String sendEmail(SendMailRequest mailRequest);
+
 
 }

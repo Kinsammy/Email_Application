@@ -18,7 +18,7 @@ import semicolon.email_application.data.dto.request.SendMailRequest;
 import semicolon.email_application.data.dto.request.Sender;
 import semicolon.email_application.data.models.AppUser;
 import semicolon.email_application.exception.EmailManagementException;
-import semicolon.email_application.service.AppUserService;
+import semicolon.email_application.service.IAppUserService;
 
 import java.util.List;
 
@@ -28,9 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @SpringBootTest
-class AppUserServiceImpTest {
+class IAppUserServiceImpTest {
     @Autowired
-    private AppUserService appUserService;
+    private IAppUserService IAppUserService;
     private RegisterAppUserRequest request;
 
     private SendMailRequest mailRequest;
@@ -53,7 +53,7 @@ class AppUserServiceImpTest {
 
     @Test
     void registerTest() {
-        var registerResponse = appUserService.register(request);
+        var registerResponse = IAppUserService.register(request);
         assertThat(registerResponse).isNotNull();
         assertThat(registerResponse.getCode())
                 .isEqualTo(HttpStatus.CREATED.value());
@@ -62,14 +62,14 @@ class AppUserServiceImpTest {
 
     @Test
     void getAllAppUsersTest() {
-        var registerResponse = appUserService.getAllAppUsers();
+        var registerResponse = IAppUserService.getAllAppUsers();
         assertThat(registerResponse).isNotNull();
     }
 
     @Test
     void getSenderByIdTest() {
-        var response = appUserService.register(request);
-        AppUser foundAppUser = appUserService.getAppUserById(response.getId());
+        var response = IAppUserService.register(request);
+        AppUser foundAppUser = IAppUserService.getAppUserById(response.getId());
         assertThat(foundAppUser).isNotNull();
         assertThat(foundAppUser.getName()).isEqualTo(request.getEmail());
     }
@@ -82,8 +82,8 @@ class AppUserServiceImpTest {
                 new ReplaceOperation(new JsonPointer("/phoneNumber"),
                         node)
         ));
-        var registerResponse = appUserService.register(request);
-        var updatedSender = appUserService.updateAppUser(registerResponse.getId(), updatePayload);
+        var registerResponse = IAppUserService.register(request);
+        var updatedSender = IAppUserService.updateAppUser(registerResponse.getId(), updatePayload);
         assertThat(updatedSender).isNotNull();
         assertThat(updatedSender.getPhoneNumber()).isNotNull();
     }
@@ -91,16 +91,16 @@ class AppUserServiceImpTest {
 
     @Test
     void deleteSenderTest() {
-        var response = appUserService.register(request);
-        appUserService.deleteAppUser(response.getId());
+        var response = IAppUserService.register(request);
+        IAppUserService.deleteAppUser(response.getId());
         assertThrows(EmailManagementException.class,
-                ()-> appUserService.getAppUserById(response.getId()));
+                ()-> IAppUserService.getAppUserById(response.getId()));
     }
 
 
     @Test
     void sendEmailTest() {
-        var response = appUserService.sendEmail(mailRequest);
+        var response = IAppUserService.sendEmail(mailRequest);
         assertThat(response).isNotNull();
     }
 }

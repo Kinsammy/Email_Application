@@ -1,7 +1,6 @@
 package semicolon.email_application.config;
 
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,11 +14,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import semicolon.email_application.data.repositories.AppUserRepository;
-import semicolon.email_application.security.util.JwtUtil;
 
-import java.security.Key;
 
 @Configuration
+@RequiredArgsConstructor
 public class AppConfig {
     @Value("${sendinblue.mail.url}")
     private String mailUrl;
@@ -29,7 +27,7 @@ public class AppConfig {
     @Value("${jwt.secret.key}")
     private String jwtSecret;
 
-//    private final AppUserRepository userRepository;
+    private final AppUserRepository userRepository;
 
 
 
@@ -43,27 +41,24 @@ public class AppConfig {
         return new MailConfig(mailApiKey, mailUrl);
     }
 
+
+
+
     @Bean
-    public JwtUtil jwtUtil(){
-        return new JwtUtil(jwtSecret);
+    public UserDetailsService userDetailsService(){
+        return username -> userRepository.findByEmail(username)
+                .orElseThrow(()-> new UsernameNotFoundException("User not found"));
     }
 
 
-//    @Bean
-//    public UserDetailsService userDetailsService(){
-//        return username -> userRepository.findByEmail(username)
-//                .orElseThrow(()-> new UsernameNotFoundException("User not found"));
-//    }
 
-
-
-//    @Bean
-//    public AuthenticationProvider authenticationProvider(){
-//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-//        authProvider.setUserDetailsService(userDetailsService());
-//        authProvider.setPasswordEncoder(passwordEncoder());
-//        return authProvider;
-//    }
+    @Bean
+    public AuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

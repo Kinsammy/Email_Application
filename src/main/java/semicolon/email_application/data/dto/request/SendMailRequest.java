@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,8 +12,9 @@ import java.util.List;
 @Getter
 public class SendMailRequest {
     private Sender sender;
-    private List<Recipient> to = new ArrayList<>();
+    private Recipient to;
     private String subject;
     private String textContent;
+    private MultipartFile attachments;
 
 }

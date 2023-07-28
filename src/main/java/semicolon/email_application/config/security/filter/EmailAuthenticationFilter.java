@@ -20,7 +20,7 @@ import semicolon.email_application.data.repositories.TokenRepository;
 import java.io.IOException;
 @Component
 @AllArgsConstructor
-public class AuthenticationFilter extends OncePerRequestFilter {
+public class EmailAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
