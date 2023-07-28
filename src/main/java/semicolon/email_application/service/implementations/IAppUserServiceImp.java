@@ -4,23 +4,31 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import semicolon.email_application.data.dto.request.RegisterAppUserRequest;
+import org.springframework.transaction.annotation.Transactional;
+import semicolon.email_application.config.security.service.JwtService;
+import semicolon.email_application.data.dto.request.RegisterRequest;
+import semicolon.email_application.data.dto.request.VerifyRequest;
+import semicolon.email_application.data.dto.response.ApiResponse;
 import semicolon.email_application.data.dto.response.RegisterResponse;
 import semicolon.email_application.data.models.AppUser;
 import semicolon.email_application.data.models.Role;
+import semicolon.email_application.data.models.Token;
 import semicolon.email_application.data.repositories.AppUserRepository;
+import semicolon.email_application.data.repositories.TokenRepository;
 import semicolon.email_application.exception.EmailManagementException;
 import semicolon.email_application.exception.UserAlreadyExistException;
 import semicolon.email_application.service.IAppUserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,14 +36,16 @@ import java.util.Optional;
 @AllArgsConstructor
 @Slf4j
 public class IAppUserServiceImp implements IAppUserService {
-
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenRepository tokenRepository;
+    private final JwtService jwtService;
+    private final EntityManager entityManager;
 
 
 
     @Override
-    public RegisterResponse register(RegisterAppUserRequest request){
+    public AppUser register(RegisterRequest request){
         Optional<AppUser>  user = appUserRepository.findByEmail(request.getEmail());
         if (user.isPresent()){
             throw new UserAlreadyExistException(
@@ -47,8 +57,21 @@ public class IAppUserServiceImp implements IAppUserService {
         appUser.setRole(Role.USER);
         appUser.setPassword(passwordEncoder.encode(request.getPassword()));
         appUser.setCreatedAt(LocalDateTime.now().toString());
-        var savedAppUser = appUserRepository.save(appUser);
-        return getRegisterResponse(savedAppUser);
+        return appUserRepository.save(appUser);
+    }
+
+    @Override
+    public String verifyAccount(VerifyRequest request) {
+        if (getAppUserByEmail(request.getEmail())== null) {
+            throw new EmailManagementException("Invalid Email");
+        }
+        var appUser = getAppUserByEmail(request.getEmail());
+        Optional<Token> receivedToken = validateToken(appUser,request.getVerificationToken());
+
+        appUser.setEnabled(true);
+        appUserRepository.save(appUser);
+        tokenRepository.delete(receivedToken.get());
+       return "Email verified successfully! Now you can login to your account.";
     }
 
 
@@ -110,6 +133,31 @@ public class IAppUserServiceImp implements IAppUserService {
         appUserRepository.deleteById(senderId);
     }
 
+    @Override
+    @Transactional
+    public String generateAndSaveToken(AppUser user) {
+        Optional<Token> existingToken = tokenRepository.findTokenByAppUser(user);
+        existingToken.ifPresent(tokenRepository::delete);
+        String generateToken = jwtService.generateToken(user);
+        var token = Token.builder()
+                .appUser(entityManager.merge(user))
+                .token(generateToken)
+                .build();
+        tokenRepository.save(token);
+        return generateToken;
+    }
+
+    @Override
+    public Optional<Token> validateToken(AppUser user, String token) {
+        Optional<Token> receivedToken = tokenRepository.findTokenByAppUserAndToken(user, token);
+        if (receivedToken.isEmpty()) throw new EmailManagementException("Invalid verification token.");
+        else if (receivedToken.get().getExpiryTime().isBefore(LocalDateTime.now())){
+            tokenRepository.delete(receivedToken.get());
+            throw new EmailManagementException("Token already expired");
+        }
+
+        return receivedToken;
+    }
 
 
 }

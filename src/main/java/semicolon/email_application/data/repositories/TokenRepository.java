@@ -17,7 +17,6 @@ where au.id = :appUserId and (t.expired = false  or t.revoked = false)
     List<Token> findValidTokenByAppUserId(Long appUserId);
     Optional<Token> findByToken(String token);
     Optional<Token> findTokenByAppUserAndToken(AppUser appUser, String token);
-
     Optional<Token> findTokenByAppUser(AppUser appUser);
 
 

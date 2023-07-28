@@ -7,7 +7,8 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class RegisterAppUserRequest {
+public class RegisterRequest {
+    private String name;
     private String email;
     private String password;
 }

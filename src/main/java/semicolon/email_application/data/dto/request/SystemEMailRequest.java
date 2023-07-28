@@ -1,8 +1,9 @@
 package semicolon.email_application.data.dto.request;
 
-import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
-
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @Setter
 @Getter
-public class SendMailRequest {
-    private Sender sender;
+public class SystemEMailRequest {
+    private Sender sender = new Sender("SamTech Email Application", "noreply@sametech.net");
     private List<Recipient> to = new ArrayList<>();
     private String subject;
     private String textContent;
-    private MultipartFile attachments;
-
 }

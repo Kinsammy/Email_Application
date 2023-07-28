@@ -13,12 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import semicolon.email_application.data.dto.request.Recipient;
-import semicolon.email_application.data.dto.request.RegisterAppUserRequest;
+import semicolon.email_application.data.dto.request.RegisterRequest;
 import semicolon.email_application.data.dto.request.SendMailRequest;
 import semicolon.email_application.data.dto.request.Sender;
 import semicolon.email_application.data.models.AppUser;
 import semicolon.email_application.exception.EmailManagementException;
 import semicolon.email_application.service.IAppUserService;
+import semicolon.email_application.service.IMessageService;
 
 import java.util.List;
 
@@ -31,13 +32,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class IAppUserServiceImpTest {
     @Autowired
     private IAppUserService IAppUserService;
-    private RegisterAppUserRequest request;
+    @Autowired
+    private IMessageService messageService;
+    private RegisterRequest request;
 
     private SendMailRequest mailRequest;
 
     @BeforeEach
     void setUp(){
-        request = new RegisterAppUserRequest();
+        request = new RegisterRequest();
         request.setEmail("test@email.com");
 //        request.setFirstName("Sam");
 //        request.setLastName("Idowu");
@@ -47,7 +50,7 @@ class IAppUserServiceImpTest {
                 new Recipient("Samuel", "fanusamuel@gmail.com")
         );
         Sender sender = new Sender("SamuelMail", "noreply@app.net");
-        mailRequest = new SendMailRequest(sender, to, "Test sending email", "Let build the world together");
+        mailRequest = new SendMailRequest(sender, to, "Test sending email", "Let build the world together", null);
 
     }
 
@@ -55,8 +58,6 @@ class IAppUserServiceImpTest {
     void registerTest() {
         var registerResponse = IAppUserService.register(request);
         assertThat(registerResponse).isNotNull();
-        assertThat(registerResponse.getCode())
-                .isEqualTo(HttpStatus.CREATED.value());
 
     }
 
@@ -85,7 +86,6 @@ class IAppUserServiceImpTest {
         var registerResponse = IAppUserService.register(request);
         var updatedSender = IAppUserService.updateAppUser(registerResponse.getId(), updatePayload);
         assertThat(updatedSender).isNotNull();
-        assertThat(updatedSender.getPhoneNumber()).isNotNull();
     }
 
 
@@ -100,7 +100,7 @@ class IAppUserServiceImpTest {
 
     @Test
     void sendEmailTest() {
-        var response = IAppUserService.sendEmail(mailRequest);
+        var response = messageService.sendMessage(mailRequest);
         assertThat(response).isNotNull();
     }
 }

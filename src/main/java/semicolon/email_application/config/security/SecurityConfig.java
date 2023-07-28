@@ -29,7 +29,7 @@ public class SecurityConfig {
     private final EmailAuthenticationFilter authenticationFilter;
 
 
-    private static final String[] AUTHENTICATION_WHITE_LIST = {
+    private static final String[] AUTHENTICATION_WHITELIST = {
             "/api/v1/auth/**",
             "/v2/api-docs",
             "/v3/api-docs",
@@ -41,7 +41,7 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "webjars/**",
             "/swagger-ui.html"
-    }
+    };
 
 
 
@@ -50,28 +50,29 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 
-        return http.csrf(AbstractHttpConfigurer::disable)
+        http
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(sessionManagement ->
+                .sessionManagement(sessionManagement->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests( authorize -> authorize
-                        .requestMatchers(AUTHENTICATION_WHITE_LIST)
+                        .requestMatchers(AUTHENTICATION_WHITELIST)
                         .permitAll()
                         .anyRequest()
                         .authenticated()
-                )
-                .build();
+                );
 
+        return http.build();
     }
 
     private CorsConfigurationSource corsConfigurationSource() {
-        var source = new UrlBasedCorsConfigurationSource();
-        var corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedMethods(List.of("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration corsConfiguration= new CorsConfiguration();
+        corsConfiguration.addAllowedOrigin("*");
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
-        corsConfiguration.setAllowedMethods(List.of("*"));
+        corsConfiguration.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
     }
