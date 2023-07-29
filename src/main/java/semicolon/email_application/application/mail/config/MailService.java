@@ -15,13 +15,22 @@ import semicolon.email_application.data.dto.request.SystemEMailRequest;
 @AllArgsConstructor
 public class MailService implements IMailService{
     private final MailConfig mailConfig;
+    private final RestTemplate template;
     @Override
     public String sendNotification(SystemEMailRequest request) {
-        var template = new RestTemplate();
+        return mailConfiguration(request);
+    }
+
+    @Override
+    public String sendMail(SendMailRequest request) {
+        return mailConfiguration(request);
+    }
+
+    private <T> String mailConfiguration(T request){
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("api-key", mailConfig.getApiKey());
-        HttpEntity<SystemEMailRequest> requestHttpEntity = new HttpEntity<>(request, headers);
+        HttpEntity<T> requestHttpEntity = new HttpEntity<>(request, headers);
         ResponseEntity<String> response = template.postForEntity(mailConfig.getMailUrl(), requestHttpEntity, String.class);
         return response.getBody();
     }

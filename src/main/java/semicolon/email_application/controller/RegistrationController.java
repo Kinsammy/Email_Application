@@ -9,12 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import semicolon.email_application.application.event.RegistrationCompleteEvent;
 import semicolon.email_application.data.dto.request.RegisterRequest;
 import semicolon.email_application.data.dto.request.VerifyRequest;
-import semicolon.email_application.data.dto.response.ApiResponse;
-import semicolon.email_application.data.models.Token;
 import semicolon.email_application.data.repositories.TokenRepository;
 import semicolon.email_application.service.IAppUserService;
 
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController

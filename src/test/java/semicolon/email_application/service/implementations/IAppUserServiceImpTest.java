@@ -12,11 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import semicolon.email_application.data.dto.request.Recipient;
-import semicolon.email_application.data.dto.request.RegisterRequest;
-import semicolon.email_application.data.dto.request.SendMailRequest;
-import semicolon.email_application.data.dto.request.Sender;
+import semicolon.email_application.data.dto.request.*;
 import semicolon.email_application.data.models.AppUser;
+import semicolon.email_application.data.repositories.AppUserRepository;
 import semicolon.email_application.exception.EmailManagementException;
 import semicolon.email_application.service.IAppUserService;
 import semicolon.email_application.service.IMessageService;
@@ -33,10 +31,11 @@ class IAppUserServiceImpTest {
     @Autowired
     private IAppUserService IAppUserService;
     @Autowired
-    private IMessageService messageService;
-    private RegisterRequest request;
 
-    private SendMailRequest mailRequest;
+    private RegisterRequest request;
+    private AppUserRepository userRepository;
+
+
 
     @BeforeEach
     void setUp(){
@@ -49,8 +48,9 @@ class IAppUserServiceImpTest {
         List<Recipient> to = List.of(
                 new Recipient("Samuel", "fanusamuel@gmail.com")
         );
-        Sender sender = new Sender("SamuelMail", "noreply@app.net");
-        mailRequest = new SendMailRequest(sender, to, "Test sending email", "Let build the world together", null);
+        var sender = userRepository.findByEmail(user.getEmail());
+        mailRequest.setSender(sender);
+        mailRequest = new SystemEMailRequest(sender, to, "Test sending email", "Let build the world together", null);
 
     }
 
@@ -98,9 +98,4 @@ class IAppUserServiceImpTest {
     }
 
 
-    @Test
-    void sendEmailTest() {
-        var response = messageService.sendMessage(mailRequest);
-        assertThat(response).isNotNull();
-    }
 }

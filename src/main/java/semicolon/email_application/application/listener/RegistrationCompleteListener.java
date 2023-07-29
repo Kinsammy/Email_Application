@@ -8,6 +8,7 @@ import semicolon.email_application.application.event.RegistrationCompleteEvent;
 import semicolon.email_application.application.mail.config.IMailService;
 import semicolon.email_application.config.security.service.JwtService;
 import semicolon.email_application.data.dto.request.Recipient;
+import semicolon.email_application.data.dto.request.Sender;
 import semicolon.email_application.data.dto.request.SystemEMailRequest;
 import semicolon.email_application.data.models.AppUser;
 import semicolon.email_application.service.IAppUserService;
@@ -31,6 +32,7 @@ public class RegistrationCompleteListener implements ApplicationListener<Registr
 
     private void sendVerificationEmail(String url) {
         var request = new SystemEMailRequest();
+        request.setSender(new Sender("SamTech Email Application", "noreply@sametech.net"));
         request.setSubject("Email Verification");
         request.setTextContent("<p> Hi, " + user.getName() + ", </p>" +
                 "<p>Thank you for registering with us,</p>" +
