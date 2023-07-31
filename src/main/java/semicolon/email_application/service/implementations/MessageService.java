@@ -2,12 +2,11 @@ package semicolon.email_application.service.implementations;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import semicolon.email_application.application.mail.config.IMailService;
 import semicolon.email_application.data.dto.request.SendMailRequest;
-import semicolon.email_application.data.dto.request.SystemEMailRequest;
-import semicolon.email_application.data.models.AppUser;
 import semicolon.email_application.data.models.Message;
 import semicolon.email_application.data.repositories.AppUserRepository;
 import semicolon.email_application.data.repositories.MessageRepository;
@@ -23,19 +22,34 @@ public class MessageService implements IMessageService {
     private final MessageRepository messageRepository;
 
     @Override
-    public String sendMessage(Message message) {
-        var sender = userRepository.findByEmail(message.getSender().getEmail());
-        if (sender.isEmpty()){
-            throw new EmailManagementException("Sender email not registered.");
+    public String sendMessage(SendMailRequest request) {
+        String authenticatedUser = getAuthenticatedUser();
+        if (!authenticatedUser.equals(request.getSenderEmail())) {
+            throw new EmailManagementException("You are not authorized to send messages for this user.");
         }
-        var sendMailRequest = new SendMailRequest();
-        sendMailRequest.setSender(message.getSender());
-        sendMailRequest.setRecipient(message.getRecipient());
-        sendMailRequest.setSubject(message.getSubject());
-        sendMailRequest.setBody(message.getBody());
-        sendMailRequest.setAttachments(message.getAttachments());
+
+        var message = new Message();
+        message.setSender();
+        message.setRecipient(request.getRecipient());
+        message.setSubject(request.getSubject());
+        message.setBody(request.getBody());
+        message.setAttachments(request.getAttachments());
+
         messageRepository.save(message);
-        mailService.sendMail(sendMailRequest);
+        mailService.sendMail(message);
         return "Message sent.";
+
+    }
+
+    private String getAuthenticatedUser() {
+        Object principal = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+        if (principal instanceof UserDetails){
+            return(((UserDetails) principal).getUsername());
+        }
+        else {
+            return principal.toString();
+        }
     }
 }

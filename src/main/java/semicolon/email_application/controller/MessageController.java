@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import semicolon.email_application.data.dto.request.SendMailRequest;
 import semicolon.email_application.data.dto.request.SystemEMailRequest;
+import semicolon.email_application.data.models.Message;
 import semicolon.email_application.service.IMessageService;
 
 @RestController
@@ -17,7 +18,7 @@ public class MessageController {
     private final IMessageService messageService;
 
     @PostMapping("sendmail")
-    public ResponseEntity<String> sendEmail(@RequestBody SystemEMailRequest request){
+    public ResponseEntity<String> sendEmail(@RequestBody SendMailRequest request){
         messageService.sendMessage(request);
         return  ResponseEntity.ok("Message sent successfully");
     }

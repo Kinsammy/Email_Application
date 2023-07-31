@@ -9,21 +9,27 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import semicolon.email_application.config.security.service.JwtService;
+import semicolon.email_application.data.dto.request.AuthenticationRequest;
 import semicolon.email_application.data.dto.request.RegisterRequest;
 import semicolon.email_application.data.dto.request.VerifyRequest;
 import semicolon.email_application.data.dto.response.ApiResponse;
+import semicolon.email_application.data.dto.response.AuthenticationResponse;
 import semicolon.email_application.data.dto.response.RegisterResponse;
 import semicolon.email_application.data.models.AppUser;
 import semicolon.email_application.data.models.Role;
 import semicolon.email_application.data.models.Token;
+import semicolon.email_application.data.models.TokenType;
 import semicolon.email_application.data.repositories.AppUserRepository;
 import semicolon.email_application.data.repositories.TokenRepository;
 import semicolon.email_application.exception.EmailManagementException;
 import semicolon.email_application.exception.UserAlreadyExistException;
+import semicolon.email_application.exception.UserNotFoundException;
 import semicolon.email_application.service.IAppUserService;
 
 import java.time.LocalDateTime;
@@ -41,6 +47,7 @@ public class IAppUserServiceImp implements IAppUserService {
     private final TokenRepository tokenRepository;
     private final JwtService jwtService;
     private final EntityManager entityManager;
+    private final AuthenticationManager authenticationManager;
 
 
 
@@ -72,6 +79,48 @@ public class IAppUserServiceImp implements IAppUserService {
         appUserRepository.save(appUser);
         tokenRepository.delete(receivedToken.get());
        return "Email verified successfully! Now you can login to your account.";
+    }
+
+    @Override
+    public AuthenticationResponse login(AuthenticationRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(), request.getPassword()
+                )
+        );
+
+        var user = appUserRepository.findByEmail(request.getEmail())
+                .orElseThrow(()-> new UserNotFoundException("User not found"));
+        var jwtToken = jwtService.generateToken(user);
+        revokeAllUserTokens(user);
+        saveUserToken(user, jwtToken);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        return AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    private void saveUserToken(AppUser user, String jwtToken) {
+        var token = Token.builder()
+                .appUser(user)
+                .token(jwtToken)
+                .tokenType(TokenType.BEARER)
+                .revoked(false)
+                .expired(false)
+                .build();
+        tokenRepository.save(token);
+    }
+
+    private void revokeAllUserTokens(AppUser user) {
+        var validUserTokens = tokenRepository.findValidTokenByAppUserId(user.getId());
+        if (validUserTokens.isEmpty()) return;
+        validUserTokens.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+        });
+        tokenRepository.saveAll(validUserTokens);
+
     }
 
 

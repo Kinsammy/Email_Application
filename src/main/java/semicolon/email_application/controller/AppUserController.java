@@ -4,7 +4,9 @@ import com.github.fge.jsonpatch.JsonPatch;
 import lombok.AllArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import semicolon.email_application.data.dto.request.AuthenticationRequest;
 import semicolon.email_application.data.dto.request.RegisterRequest;
+import semicolon.email_application.data.dto.response.AuthenticationResponse;
 import semicolon.email_application.data.dto.response.RegisterResponse;
 import semicolon.email_application.data.models.AppUser;
 import semicolon.email_application.service.IAppUserService;
@@ -18,11 +20,11 @@ public class AppUserController {
     private final IAppUserService IAppUserService;
 
 
-//    @PostMapping
-//    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest){
-//        RegisterResponse registerResponse = IAppUserService.register(registerRequest);
-//        return  ResponseEntity.status(registerResponse.getCode()).body(registerResponse);
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody AuthenticationRequest request){
+        var response = IAppUserService.login(request);
+        return  ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+    }
 
     @GetMapping
     public List<AppUser> getAllUsers(){

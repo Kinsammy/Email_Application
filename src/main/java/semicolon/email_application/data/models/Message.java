@@ -23,4 +23,6 @@ public class Message {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Attachment> attachments;
     private String timeStamp;
+
+
 }

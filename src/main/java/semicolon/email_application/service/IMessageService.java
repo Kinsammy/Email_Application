@@ -5,5 +5,5 @@ import semicolon.email_application.data.dto.request.SystemEMailRequest;
 import semicolon.email_application.data.models.Message;
 
 public interface IMessageService {
-    String sendMessage(Message message);
+    String sendMessage(SendMailRequest request);
 }

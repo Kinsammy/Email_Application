@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class IAppUserServiceImpTest {
     @Autowired
     private IAppUserService IAppUserService;
-    @Autowired
 
     private RegisterRequest request;
     private AppUserRepository userRepository;
@@ -45,12 +44,12 @@ class IAppUserServiceImpTest {
 //        request.setLastName("Idowu");
         request.setPassword("testPassword");
 
-        List<Recipient> to = List.of(
-                new Recipient("Samuel", "fanusamuel@gmail.com")
-        );
-        var sender = userRepository.findByEmail(user.getEmail());
-        mailRequest.setSender(sender);
-        mailRequest = new SystemEMailRequest(sender, to, "Test sending email", "Let build the world together", null);
+//        List<Recipient> to = List.of(
+//                new Recipient("Samuel", "fanusamuel@gmail.com")
+//        );
+//        var sender = userRepository.findByEmail(user.getEmail());
+//        mailRequest.setSender(sender);
+//        mailRequest = new SystemEMailRequest(sender, to, "Test sending email", "Let build the world together", null);
 
     }
 
