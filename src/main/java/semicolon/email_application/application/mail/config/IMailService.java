@@ -6,5 +6,5 @@ import semicolon.email_application.data.models.Message;
 
 public interface IMailService {
     String sendNotification(SystemEMailRequest request);
-    String sendMail(Message message);
+    String sendMail(SendMailRequest mailRequest);
 }

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import semicolon.email_application.application.mail.config.IMailService;
 import semicolon.email_application.data.dto.request.SendMailRequest;
-import semicolon.email_application.data.models.AppUser;
 import semicolon.email_application.data.models.Message;
 import semicolon.email_application.data.repositories.AppUserRepository;
 import semicolon.email_application.data.repositories.AttachmentRepository;
@@ -28,26 +27,10 @@ public class MessageService implements IMessageService {
 
     @Override
     public String sendMessage(SendMailRequest request) {
-        AppUser foundSender = null;
-        if (request.getSenderId() != null) {
-             foundSender = appUserService.getAppUserById(request.getSenderId());
-            if (foundSender == null) {
-                throw new EmailManagementException(
-                        String.format("Sender with ID %d not found.", request.getSenderId())
-                );
-            }
-            // Handle sending the message using foundSender
-        } else if (request.getSenderEmail() != null) {
-            foundSender = appUserService.getAppUserByEmail(request.getSenderEmail());
-            if (foundSender == null) {
-                throw new EmailManagementException(
-                        String.format("Sender with email %s not found.", request.getSenderEmail())
-                );
-            }
-            // Handle sending the message using foundSender
-        } else {
-            throw new EmailManagementException("Either senderId or senderEmail must be provided.");
-        }
+        var foundSender = appUserService.getAppUserByEmail(request.getSenderEmail());
+        if (foundSender== null) throw new EmailManagementException(
+                String.format("Sender with email %s not fund.", request.getSenderEmail())
+        );
 
         var message = Message.builder()
                 .sender(foundSender)
@@ -56,9 +39,8 @@ public class MessageService implements IMessageService {
                 .body(request.getBody())
                 .timeStamp(LocalDateTime.now().toString())
                 .build();
-        messageRepository.save(message);
-        mailService.sendMail(message);
-        return "Message sent successfully";
+
+        return null;
     }
 
 

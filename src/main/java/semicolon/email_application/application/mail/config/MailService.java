@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import semicolon.email_application.config.MailConfig;
 import semicolon.email_application.data.dto.request.SendMailRequest;
 import semicolon.email_application.data.dto.request.SystemEMailRequest;
-import semicolon.email_application.data.models.Message;
+
 
 @Service
 @AllArgsConstructor
@@ -23,8 +23,8 @@ public class MailService implements IMailService{
     }
 
     @Override
-    public String sendMail(Message message) {
-        return mailConfiguration(message);
+    public String sendMail(SendMailRequest mailRequest) {
+        return mailConfiguration(mailRequest);
     }
 
     private <T> String mailConfiguration(T request){

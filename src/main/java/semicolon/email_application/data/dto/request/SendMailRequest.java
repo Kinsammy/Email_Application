@@ -13,7 +13,6 @@ import java.util.List;
 @Data
 @Builder
 public class SendMailRequest {
-    private Long senderId;
     private String senderEmail;
     private String recipientEmail;
     private String subject;
