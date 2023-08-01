@@ -4,6 +4,7 @@ package semicolon.email_application.service;
 import com.github.fge.jsonpatch.JsonPatch;
 import semicolon.email_application.data.dto.request.AuthenticationRequest;
 import semicolon.email_application.data.dto.request.RegisterRequest;
+import semicolon.email_application.data.dto.request.UserUpdateRequest;
 import semicolon.email_application.data.dto.request.VerifyRequest;
 import semicolon.email_application.data.dto.response.ApiResponse;
 import semicolon.email_application.data.dto.response.AuthenticationResponse;
@@ -23,7 +24,8 @@ public interface IAppUserService {
     AppUser getAppUserById(Long appUserId);
     AppUser getAppUserByEmail(String email);
     AppUser updateAppUser(Long appUserId, JsonPatch updatePayload);
-//    Sender addNewSender(Sender sender);
+    AppUser updateUser(UserUpdateRequest request);
+    //    Sender addNewSender(Sender sender);
     void deleteAppUser(Long appUserId);
 
 

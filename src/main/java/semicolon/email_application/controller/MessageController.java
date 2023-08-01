@@ -1,6 +1,7 @@
 package semicolon.email_application.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,8 +21,8 @@ public class MessageController {
     private final IMessageService messageService;
 
     @PostMapping("sendmail")
-    public ResponseEntity<String> sendEmail(@RequestBody SendMailRequest request) throws IOException {
-        messageService.sendMessage(request);
-        return  ResponseEntity.ok("Message sent successfully");
+    public ResponseEntity<String> sendEmail(@RequestBody SendMailRequest request) {
+        var response = messageService.sendMessage(request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

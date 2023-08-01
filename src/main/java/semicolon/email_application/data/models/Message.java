@@ -2,6 +2,7 @@ package semicolon.email_application.data.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import semicolon.email_application.data.dto.request.Recipient;
 
 import java.util.List;
 
@@ -16,8 +17,7 @@ public class Message {
     private Long id;
    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private AppUser sender;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private AppUser recipient;
+    private String recipientEmail;
     private String subject;
     private String body;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

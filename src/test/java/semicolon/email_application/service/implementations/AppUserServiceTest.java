@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @SpringBootTest
-class IAppUserServiceImpTest {
+class AppUserServiceTest {
     @Autowired
     private IAppUserService IAppUserService;
 

@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import semicolon.email_application.config.security.service.JwtService;
 import semicolon.email_application.data.dto.request.AuthenticationRequest;
 import semicolon.email_application.data.dto.request.RegisterRequest;
+import semicolon.email_application.data.dto.request.UserUpdateRequest;
 import semicolon.email_application.data.dto.request.VerifyRequest;
-import semicolon.email_application.data.dto.response.ApiResponse;
 import semicolon.email_application.data.dto.response.AuthenticationResponse;
 import semicolon.email_application.data.dto.response.RegisterResponse;
 import semicolon.email_application.data.models.AppUser;
@@ -34,14 +34,13 @@ import semicolon.email_application.service.IAppUserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 @Slf4j
-public class IAppUserServiceImp implements IAppUserService {
+public class AppUserService implements IAppUserService {
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
@@ -175,6 +174,22 @@ public class IAppUserServiceImp implements IAppUserService {
             log.error(exception.getMessage());
             throw new RuntimeException();
         }
+    }
+
+    @Override
+    public AppUser updateUser(UserUpdateRequest request) {
+        AppUser existingUser = appUserRepository.findById(request.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        // Update user properties based on the request
+        existingUser.setName(request.getName());
+        existingUser.setEmail(request.getEmail());
+
+        // Make sure to set the existing role, don't overwrite it with null
+        existingUser.setRole(existingUser.getRole());
+
+        // Save the updated user to the database
+        return appUserRepository.save(existingUser);
     }
 
     @Override

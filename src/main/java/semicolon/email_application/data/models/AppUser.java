@@ -21,6 +21,7 @@ public class AppUser implements UserDetails {
     private Long id;
     private String name;
     private String password;
+    @Column(unique = true)
     private String email;
     private Gender gender;
     private int age;

@@ -8,16 +8,14 @@ import semicolon.email_application.data.models.Attachment;
 
 import java.util.ArrayList;
 import java.util.List;
-
-@AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
+@AllArgsConstructor
+@Data
+@Builder
 public class SendMailRequest {
-    private Sender sender;
-    private Recipient recipient;
+    private Long senderId;
+    private String senderEmail;
+    private String recipientEmail;
     private String subject;
     private String body;
-    private MultipartFile attachments;
-
 }
