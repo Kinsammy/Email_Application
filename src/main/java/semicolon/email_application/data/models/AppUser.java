@@ -32,6 +32,11 @@ public class AppUser implements UserDetails {
     private List<Token> tokens;
     private String createdAt;
 
+    public AppUser(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();

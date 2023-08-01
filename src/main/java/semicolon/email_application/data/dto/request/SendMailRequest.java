@@ -14,12 +14,10 @@ import java.util.List;
 @Setter
 @Getter
 public class SendMailRequest {
-    private String senderName;
-    private String senderEmail;
-    private String recipientName;
-    private String recipientEmail;
+    private Sender sender;
+    private Recipient recipient;
     private String subject;
     private String body;
-    private List<Attachment> attachments;
+    private MultipartFile attachments;
 
 }

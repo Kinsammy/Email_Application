@@ -11,6 +11,8 @@ import semicolon.email_application.data.dto.request.SystemEMailRequest;
 import semicolon.email_application.data.models.Message;
 import semicolon.email_application.service.IMessageService;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/v1/message")
 @AllArgsConstructor
@@ -18,7 +20,7 @@ public class MessageController {
     private final IMessageService messageService;
 
     @PostMapping("sendmail")
-    public ResponseEntity<String> sendEmail(@RequestBody SendMailRequest request){
+    public ResponseEntity<String> sendEmail(@RequestBody SendMailRequest request) throws IOException {
         messageService.sendMessage(request);
         return  ResponseEntity.ok("Message sent successfully");
     }
