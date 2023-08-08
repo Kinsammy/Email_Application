@@ -20,7 +20,7 @@ import java.io.IOException;
 public class MessageController {
     private final IMessageService messageService;
 
-    @PostMapping("sendmail")
+    @PostMapping("/sendmail")
     public ResponseEntity<String> sendEmail(@RequestBody SendMailRequest request) {
         var response = messageService.sendMessage(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);

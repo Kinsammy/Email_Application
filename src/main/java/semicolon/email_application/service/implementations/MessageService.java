@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import semicolon.email_application.application.mail.config.IMailService;
+import semicolon.email_application.data.dto.request.Recipient;
 import semicolon.email_application.data.dto.request.SendMailRequest;
+import semicolon.email_application.data.dto.request.Sender;
 import semicolon.email_application.data.models.Message;
 import semicolon.email_application.data.repositories.AppUserRepository;
 import semicolon.email_application.data.repositories.AttachmentRepository;
@@ -27,23 +29,38 @@ public class MessageService implements IMessageService {
 
     @Override
     public String sendMessage(SendMailRequest request) {
-        var foundSender = appUserService.getAppUserByEmail(request.getSenderEmail());
-        if (foundSender== null) throw new EmailManagementException(
-                String.format("Sender with email %s not fund.", request.getSenderEmail())
+        var foundSender = userRepository.findByEmail(request.getSender().getEmail());
+        if (foundSender.isEmpty()) throw new EmailManagementException(
+                String.format("Sender with email %s not fund.", request.getSender())
         );
 
         var message = Message.builder()
-                .sender(foundSender)
-                .recipientEmail(request.getRecipientEmail())
+                .sender(foundSender.get())
+                .recipientEmail(request.getTo().getEmail())
                 .subject(request.getSubject())
-                .body(request.getBody())
+                .body(request.getTextContent())
                 .timeStamp(LocalDateTime.now().toString())
                 .build();
+        messageRepository.save(message);
+        log.info("Sending email request: {}", request);
 
-        return null;
+        var emailRequest = SendMailRequest.builder()
+                .sender(new Sender(foundSender.get().getName(), foundSender.get().getEmail()))
+                .to(new Recipient(request.getTo().getName(), request.getTo().getEmail()))
+                .subject(request.getSubject())
+                .textContent(request.getTextContent())
+                .build();
+        mailService.sendMail(emailRequest);
+        log.info("Sending email request: {}", request);
+
+        try {
+            mailService.sendMail(emailRequest);
+            return "Message sent successfully";
+        } catch (Exception e) {
+            log.error("Error sending email: {}", e.getMessage());
+            throw new EmailManagementException("Error sending email.");
+        }
     }
-
-
 
 
 }
